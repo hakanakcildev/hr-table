@@ -1,5 +1,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { slugify } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -66,6 +68,7 @@ export const columns: ColumnDef<Employee>[] = [
       <a
         href={`mailto:${row.original.email}`}
         className="text-blue-600 hover:underline"
+        onClick={(e) => e.stopPropagation()}
       >
         {row.original.email}
       </a>
@@ -134,14 +137,22 @@ export const columns: ColumnDef<Employee>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(employee.id.toString())
-              }
+              onClick={(e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(employee.id.toString());
+              }}
             >
               Copy employee ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link
+                to="/employee/$employeeName"
+                params={{ employeeName: slugify(employee.name) }}
+              >
+                View details
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem>Edit employee</DropdownMenuItem>
             <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
           </DropdownMenuContent>

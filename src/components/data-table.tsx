@@ -14,6 +14,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { slugify } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +36,6 @@ import {
 import { useEmployees } from "@/hooks/use-employees";
 import { type Employee } from "@/lib/schema";
 import { columns } from "./columns";
-import { EmployeeDetailModal } from "./employee-detail-modal";
 
 function DataTable({
   columns,
@@ -43,6 +44,7 @@ function DataTable({
   columns: ColumnDef<Employee>[];
   data: Employee[];
 }) {
+  const navigate = useNavigate();
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -51,9 +53,6 @@ function DataTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [selectedEmployee, setSelectedEmployee] =
-    React.useState<Employee | null>(null);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const table = useReactTable({
     data,
@@ -97,17 +96,12 @@ function DataTable({
   }, [data]);
 
   const handleRowClick = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedEmployee(null);
+    const employeeName = slugify(employee.name);
+    navigate({ to: "/employee/$employeeName", params: { employeeName } });
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-[1280px] m-auto">
       <div className="flex flex-col items-center py-4 gap-2 md:flex-row">
         <Input
           placeholder="Filter by any field..."
@@ -199,8 +193,8 @@ function DataTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer hover:bg-gray-50 transition-colors"
                   onClick={() => handleRowClick(row.original)}
-                  className="cursor-pointer hover:bg-gray-50"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -249,12 +243,6 @@ function DataTable({
           </Button>
         </div>
       </div>
-
-      <EmployeeDetailModal
-        employee={selectedEmployee}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
     </div>
   );
 }
