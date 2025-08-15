@@ -67,7 +67,7 @@ export const columns: ColumnDef<Employee>[] = [
     cell: ({ row }) => (
       <a
         href={`mailto:${row.original.email}`}
-        className="text-blue-600 hover:underline"
+        className="hover:underline"
         onClick={(e) => e.stopPropagation()}
       >
         {row.original.email}
